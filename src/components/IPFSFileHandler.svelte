@@ -1,10 +1,11 @@
 <script>
     import { heliaState, initHelia, stopHelia } from '../lib/helia.svelte.js';
+    import { copyToClipboard } from '../lib/clipboard.js';
     import { CID } from 'multiformats/cid';
 
     // File input state
     let file = $state(null);
-    let cid = $state('');
+    let resultCID = $state('');
     let fileIsLoading = $state(false);
     let error = $state('');
 
@@ -19,8 +20,9 @@
             fileIsLoading = true;
             error = '';
             const fileBytes = new Uint8Array(await file.arrayBuffer());
-            cid = await heliaState.helia.fs.addBytes(fileBytes);
-            console.log('Uploaded to IPFS with CID:', cid.toString());
+            const cid = await heliaState.helia.fs.addBytes(fileBytes);
+            resultCID = cid.toString();
+            console.log('Uploaded to IPFS with CID:', resultCID.toString());
         } catch (err) {
             error = `Upload failed: ${err.message}`;
             console.error(error);
@@ -96,8 +98,11 @@
             >
                 {fileIsLoading ? 'Uploading...' : 'Upload to IPFS'}
             </button>
-            {#if cid}
-                <p>File uploaded! CID: <code>{cid.toString()}</code></p>
+            {#if resultCID}
+                <div class="result-row">
+                    <code>File CID: { resultCID }</code>
+                    <button onclick={() => copyToClipboard(resultCID)}>&#xf0ea;</button>
+                </div>
             {/if}
         </section>
 
@@ -121,7 +126,7 @@
 
             {#if fetchedContent}
                 <p>File fetched successfully!</p>
-                <p>Size: {(new Blob([downloadFetchedFile]).size / 1024).toFixed(2)} KB</p>
+                <p>Size: {(new Blob([downloadFetchedFile]).size / 1024)} KB</p>
                 <button onclick={downloadFetchedFile}>
                     Download File
                 </button>

@@ -1,5 +1,6 @@
 <script>
     import { heliaState, initHelia, stopHelia } from '../lib/helia.svelte.js';
+    import { copyToClipboard } from '../lib/clipboard.js';
     import { CID } from 'multiformats/cid';
 
     let uploadContent = $state('');
@@ -19,6 +20,7 @@
             const encoder = new TextEncoder();
             const cid = await heliaState.helia.fs.addBytes(encoder.encode(uploadContent));
             resultCID = cid.toString();
+            console.log('Uploaded to IPFS with CID:', resultCID.toString());
         } catch (err) {
             error = `Upload failed: ${err.message}`;
             console.error(error);
@@ -51,7 +53,7 @@
     }
 </script>
 
-<div class="ipfs-uploader">
+<div class="ipfs-text-handler">
     <!-- Node Controls -->
     {#if heliaState.helia}
         <!-- Upload Section -->
@@ -59,13 +61,16 @@
             <h3>Upload to IPFS</h3>
             <textarea
                 bind:value={uploadContent}
-                placeholder="Enter content to upload"
+                placeholder="Enter text content to upload"
             ></textarea>
             <button onclick={uploadToIPFS} disabled={uploadIsLoading || !uploadContent}>
                 {uploadIsLoading ? 'Uploading...' : 'Upload'}
             </button>
             {#if resultCID}
-                <p>CID: <code>{resultCID}</code></p>
+                <div class="result-row">
+                    <code>CID: {resultCID}</code>
+                    <button onclick={() => copyToClipboard(resultCID)}>&#xf0ea;</button>
+                </div>
             {/if}
         </div>
 
@@ -81,7 +86,9 @@
                 {fetchIsLoading ? 'Fetching...' : 'Fetch'}
             </button>
             {#if fetchedContent}
-                <pre>{fetchedContent}</pre>
+                <br>
+                <textarea>{fetchedContent}</textarea>
+                <button onclick={() => copyToClipboard(fetchedContent)}>&#xf0ea;</button>
             {/if}
         </div>
     {/if}
