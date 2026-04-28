@@ -126,7 +126,7 @@
 
             {#if fetchedContent}
                 <p>File fetched successfully!</p>
-                <p>Size: {(new Blob([downloadFetchedFile]).size / 1024)} KB</p>
+                <p>Size: {(fetchedContent.size / 1024)} KB</p>
                 <button onclick={downloadFetchedFile}>
                     Download File
                 </button>
