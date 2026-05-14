@@ -1,43 +1,116 @@
 # Svelte + Vite
 
-This template should help get you started developing with Svelte in Vite.
+## Requirements
 
-## Recommended IDE Setup
+* [bun](https://bun.com)
+* curl
+* git
+* Linux
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+## Instalation
 
-## Need an official Svelte framework?
+First install bun: 
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
-
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `checkJs` in the JS template?**
-
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+```sh
+curl -fsSL https://bun.sh/install | bash
 ```
+
+Clone the Repository and switch to it: 
+
+```sh
+git clone https://codeberg.org/p1r0/dapps-template.git && cd dapps-template
+```
+
+Then install the bun requirements:
+
+```sh
+bun install
+```
+
+## Build and Develop
+
+Run the dapp in develop mode and verify it works:
+
+```sh
+bun --bun run dev --open
+```
+> Notice: this opens the project in your default web browser by using --open directive.
+
+Once you are ready to deploy the changes you made, you can build with:
+```sh
+bun --bun run build
+```
+
+## Add and Pin the dapp into IPFS 
+
+> First ensure you have a working version of kubo and a proper setup of the gateway 
+> [more info...](https://decentralizedscience.org/Workshops/web3/)
+
+After building the project with the previous command and ensuring the ipfs daemon is running.
+Execute the following script:
+
+```sh
+./publishSite.sh
+```
+
+You will find in the output something as the following:
+
+```sh
+p1r0@somehost:~/dapps-template$ cat dist_dapps-template_CIDs.txt
+added bafybeifoguewrudazdvdjeeu6mubmsqe4pxo5yxukdukegcveihhel27rm dist/assets/index-C3peGlvu.js
+added bafkreieoq26q6nj37oxddht43s7bcormjctwgacdxuamyhzh5t5joofj3a dist/assets/index-DkyFjioG.css
+added bafkreiguqzplhgimurkhp3ja5fdyanhihafysbxsvqiowo7jhn7fazmbla dist/index.html
+added bafybeigb7iczeshfyw465bb5s7alnreqiadw6c6osxrgiuakufc6v3ahcq dist/assets
+added bafybeif4cziqxii46gfi6cuggds2wak7c4hwry3say34qfnpsocdvmnpza dist
+added bafybeiadp2pqcg7t5ehq6j4auwx5hxxkx5kfbuflu36e3d6hilmvylbige
+```
+in which is important to notice that we will use the dist CID for our DNSLink setup.
+
+> Notice that if you want to unpin the previous version for a new one you should
+> `ipfs pin rm bafybeiadp2pqcg7t5ehq6j4auwx5hxxkx5kfbuflu36e3d6hilmvylbige` which is the main CID 
+which links all the static website assets.
+
+## dnslink dapp with your dns provider
+
+Add a txt cid registry at your dns and in which you set the host to _dnslink and value as follows:
+
+```txt
+dnslink=/ipfs/bafybeif4cziqxii46gfi6cuggds2wak7c4hwry3say34qfnpsocdvmnpza
+```
+
+> Notice remember to have a alias to a gateway address with the same domain name so that it 
+resolves it
+
+Setup the following in your nginx config at the gateway alias server you are pointing:
+
+```sh
+server {
+        listen 80;
+        server_name demo.decentralizedscience.org;
+        large_client_header_buffers 16 5120k;
+
+        location / {
+                proxy_pass http://127.0.0.1:8080;
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
+        }
+}
+```
+> you should enable the site after and then get a TLS certificate with something like certbot.
+
+
+## License
+
+GNU AFFERO GENERAL PUBLIC LICENSE
+Version 3
+
+## Acknowledgments
+
+* p1r0
+
+##  Support
+
+For questions or issues, open an issue or email p1r0 at nethunters dot xyz.
+
+Open an issue (or add a comment to an existing one) before you start to ensure the feature or fix is on track.
+
