@@ -18,7 +18,7 @@ curl -fsSL https://bun.sh/install | bash
 Clone the Repository and switch to it: 
 
 ```sh
-git clone https://codeberg.org/p1r0/dapps-template.git && cd dapps-template
+git clone https://github.com/p1r/dapps-template.git && cd dapps-template
 ```
 
 Then install the bun requirements:
